@@ -3,12 +3,8 @@
 {% block content %}
     {% if user.is_authenticated %}
         <div class="col-md-6 offset-md-3">
-            <h1>Logged in</h1>
-            {% for lead in leads %}
-            	<div>{{ lead }}</div>
-            {% endfor %}
-
-            <a class="btn btn-secondary" href="{% url 'add_lead' %}" role="button">Add Lead</a>
+            <h1>Home</h1>
+            <a class="btn btn-primary" href="{% url 'leads' %}">Manage Leads</a>
         </div>
     {% else %}
         <div class="col-md-6 offset-md-3">

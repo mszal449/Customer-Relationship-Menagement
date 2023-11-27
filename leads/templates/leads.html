@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+    	<div class="col-md-6 offset-md-3">
+            <h1>Leads</h1>
+            {% for lead in leads %}
+                <div>
+                    <a href="{% url 'lead' lead.id %}">
+                        {{ lead }}
+                    </a>
+                </div>
+            {% endfor %}
+            <br>
+            <a class="btn btn-primary" href="{% url 'add_lead' %}" role="button">Add Lead</a>
+            <a class="btn btn-secondary" role="button" href="{% url 'home' %}">Home</a>
+        </div>
+    {% endif %}
+
+{% endblock %}

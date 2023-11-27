@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3">
+    <div class="card">
+        <div class="card-header">
+            {{ lead.name }} {{ lead.surname }}
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Information</h5>
+
+            <p class="card-text">
+                <strong>Email:</strong> {{ lead.email }}</p>
+
+            <p class="card-text">
+                <strong>Phone number:</strong> {{ lead.phone_number }}</p>
+        </div>
+    </div>
+    <br>
+    <a href="{% url 'update_lead' lead.id %}" class="btn btn-primary">Update</a>
+    <a href="{% url 'delete_lead' lead.id %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'leads' %}" class="btn btn-secondary">Go back</a>
+</div>
+{% endblock %}
