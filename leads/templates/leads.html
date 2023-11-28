@@ -2,19 +2,44 @@
 
 {% block content %}
     {% if user.is_authenticated %}
-    	<div class="col-md-6 offset-md-3">
-            <h1>Leads</h1>
-            {% for lead in leads %}
-                <div>
-                    <a href="{% url 'lead' lead.id %}">
-                        {{ lead }}
-                    </a>
-                </div>
-            {% endfor %}
-            <br>
-            <a class="btn btn-primary" href="{% url 'add_lead' %}" role="button">Add Lead</a>
-            <a class="btn btn-secondary" role="button" href="{% url 'home' %}">Home</a>
+        <br>
+        <div class="row">
+
+        <div class="card col-md-2">
+        <div class="card-header">Filters</div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">An item</li>
+            <li class="list-group-item">A second item</li>
+            <li class="list-group-item">A third item</li>
+          </ul>
+        </div>
+
+            <div class="col-md-7 offset-md-1">
+                <table class="table table-bordered table-striped table-hover">
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Surname</th>
+                        <th scope="col">Email Address</th>
+                        <th scope="col">Phone number</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    {% for lead in leads %}
+                    <tr class="align-middle">
+                        <td>{{ lead.name }}</td>
+                        <td>{{ lead.surname }}</td>
+                        <td>{{ lead.email }}</td>
+                        <td>{{ lead.phone_number }}</td>
+                        <td>
+                            <a class="btn btn-primary" href="{% url 'lead' lead.id %}">Open</a>
+                            <a class="btn btn-danger" href="{% url 'delete_lead' lead.id %}">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <br>
+                <a class="btn btn-primary" href="{% url 'add_lead' %}" role="button">Add Lead</a>
+                <a class="btn btn-secondary" role="button" href="{% url 'home' %}">Home</a>
+            </div>
         </div>
     {% endif %}
-
 {% endblock %}

@@ -7,6 +7,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 class User(AbstractUser):
     role = models.CharField(max_length=20)
 
+    class Meta:
+        app_label = 'leads'
+
 
 # Lead model
 class Lead(models.Model):

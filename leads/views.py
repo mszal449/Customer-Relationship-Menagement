@@ -71,6 +71,7 @@ def register_user(request):
         # Else return an empty form
         form = SignUpForm()
         return render(request, 'register.html', {'form': form})
+    return render(request, 'register.html', {'form': form})
 
 
 def leads(request):
