@@ -6,3 +6,4 @@ admin.site.register(User)
 admin.site.register(Lead)
 admin.site.register(Agent)
 
+

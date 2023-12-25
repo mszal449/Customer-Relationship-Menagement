@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import SignUpForm, AddLeadForm
+from .forms import SignUpForm, AddLeadForm, FilterLeadsForm
 from .models import Agent, Lead
 
 
@@ -75,15 +75,23 @@ def register_user(request):
 
 
 def leads(request):
-    if request.user.is_authenticated:
-        # Attempt to find the lead based on provided ID and user
-        leads = get_all_users_leads(request)
+    form = FilterLeadsForm(request.GET)
+    leads_result = Lead.objects.all()
 
-        # Render leads page with query result
-        return render(request, 'leads.html', {'leads': leads})
+    if request.GET and form.is_valid():
+        # Apply filters based on form data
+        if form.cleaned_data['name']:
+            leads_result = leads_result.filter(name__icontains=form.cleaned_data['name'])
+        if form.cleaned_data['surname']:
+            leads_result = leads_result.filter(surname__icontains=form.cleaned_data['surname'])
+        if form.cleaned_data['email']:
+            leads_result = leads_result.filter(email__icontains=form.cleaned_data['email'])
+        if form.cleaned_data['phone_number']:
+            leads_result = leads_result.filter(phone_number__icontains=form.cleaned_data['phone_number'])
+        if form.cleaned_data['agent']:
+            leads_result = leads_result.filter(agent=form.cleaned_data['agent'])
 
-    # If user is not authenticated, redirect to home page
-    return redirect('home')
+    return render(request, 'leads.html', {'leads': leads_result, 'form': form})
 
 
 def lead(request, pk):
@@ -210,14 +218,3 @@ def get_users_lead(request, id):
         return lead
     except Lead.DoesNotExist:
         raise
-
-
-def get_all_users_leads(request):
-    # If user is logged in, get agent object associated with logged in user
-    agent = get_current_agent(request)
-
-    # Retrieve leads associated with users agent model
-    leads = Lead.objects.filter(agent=agent)
-
-    # Return found leads
-    return leads

@@ -2,7 +2,7 @@ import phonenumber_field.widgets
 from django.contrib.auth.forms import UserCreationForm
 from phonenumber_field.formfields import PhoneNumberField
 from django import forms
-from .models import User, Lead
+from .models import User, Lead, Agent
 
 
 class SignUpForm(UserCreationForm):
@@ -76,6 +76,55 @@ class AddLeadForm(forms.ModelForm):
         )
     )
 
+    agent = forms.ModelChoiceField(
+        queryset=Agent.objects.all(),
+        label='Agent',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+
     class Meta:
         model = Lead
-        fields = ['name', 'surname', 'email', 'phone_number']
+        fields = ['name', 'surname', 'email', 'phone_number', 'agent']
+
+
+class FilterLeadsForm(forms.ModelForm):
+    name = forms.CharField(
+        max_length=100,
+        label='Name',
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+    )
+    surname = forms.CharField(
+        max_length=100,
+        label='Surname',
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+
+    )
+    email = forms.EmailField(
+        label='Email',
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False
+
+    )
+    phone_number = PhoneNumberField(
+        region=None,
+        widget=phonenumber_field.widgets.RegionalPhoneNumberWidget(
+            region=None,
+            attrs={'class': 'form-control'}
+        ),
+        required=False
+    )
+    agent = forms.ModelChoiceField(
+        queryset=Agent.objects.all(),
+        label='Agent',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+
+    class Meta:
+        model = Lead
+        fields = ['name', 'surname', 'email', 'phone_number', 'agent']
+
+
