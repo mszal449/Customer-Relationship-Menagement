@@ -1,15 +1,28 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import SignUpForm, AddLeadForm, FilterLeadsForm
-from .models import Agent, Lead
+from .forms import AddLeadForm, FilterLeadsForm
+from crm.models import Agent, User
+from .models import Lead
 
 
+# Home page
 def home(request):
     # Check if the user is authenticated
     if request.user.is_authenticated:
         # If the user is authenticated, render home page
-        return render(request, 'home.html', {})
+        return render(request, '../crm/templates/home.html', {})
+    else:
+        # If not, redirect to login page
+        return redirect('login')
+
+
+# Login site
+def login_user(request):
+    # Check if the user is authenticated
+    if request.user.is_authenticated:
+        # If the user is authenticated, redirect to home page
+        return redirect('home')
     else:
         # If user is not authenticated, check the type of the request
         if request.method == 'POST':
@@ -30,52 +43,13 @@ def home(request):
                 messages.error(request, 'Authentication failed, please try again.')
                 return redirect('home')
         else:
-            # If it's not a POST request, render the home page
-            return render(request, 'home.html', {})
+            # If it is not a POST request, render the home page
+            return render(request, '../crm/templates/home.html', {})
 
 
-def logout_user(request):
-    # Log out current user
-    logout(request)
-
-    # Inform the user about the succusful logout
-    messages.success(request, 'You have been logged out')
-
-    # Redirect the user to the home page
-    return redirect('home')
-
-
-def register_user(request):
-    # If request is "POST" type, form has been submitted
-    if request.method == 'POST':
-        # Create a form with request data
-        form = SignUpForm(request.POST)
-
-        # If form data is valid
-        if form.is_valid():
-            # Save form in the database
-            form.save()
-
-            # Authenticate user
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password1']
-            user = authenticate(username=username, password=password)
-            login(request, user)
-
-            # Create new agent associated with user
-            Agent.objects.create(user=user)
-
-            messages.success(request, 'You have been succesfully registered!')
-            return redirect('home')
-    else:
-        # Else return an empty form
-        form = SignUpForm()
-        return render(request, 'register.html', {'form': form})
-    return render(request, 'register.html', {'form': form})
-
-
+# Leads
 def leads(request):
-    form = FilterLeadsForm(request.GET)
+    form = FilterLeadsForm(request.GET, user=request.user)  # Pass the currently logged-in user to the form
     leads_result = Lead.objects.all()
 
     if request.GET and form.is_valid():
@@ -99,13 +73,13 @@ def lead(request, pk):
     if request.user.is_authenticated:
         try:
             # Retrieve lead data based on provided ID and associated agent model
-            lead = get_users_lead(request, pk)
+            searched_lead = get_users_lead(request, pk)
         except Lead.DoesNotExist:
             messages.error(request, 'Lead not found')
             return redirect('leads')
 
         # Render lead website with lead data
-        return render(request, 'lead.html', {'lead': lead})
+        return render(request, 'lead.html', {'lead': searched_lead})
 
     # If user is not authorized, redirect to the home page
     return redirect('home.html')
@@ -131,7 +105,7 @@ def add_lead(request):
             # If the form is not valid, render the form with error messages
             return render(request, 'add_lead.html', {'form': form})
     else:
-        # If it is not a POST request, create a empty form
+        # If it is not a POST request, create an empty form
         form = AddLeadForm()
 
         # Render the form page with empty form
@@ -142,15 +116,15 @@ def update_lead(request, pk):
     # Check user authentication
     if request.user.is_authenticated:
         # If the user is authenticated, get the lead object associated with the user
-        lead = get_users_lead(request, pk)
+        found_leads = get_users_lead(request, pk)
 
         # Check if the lead exists
-        if lead is None:
+        if found_leads is None:
             messages.error(request, 'Lead not found.')
             return redirect('leads')
 
         # Create a form filled with lead information
-        form = AddLeadForm(request.POST or None, instance=lead)
+        form = AddLeadForm(request.POST or None, instance=found_leads)
 
         if request.method == 'POST':
             if form.is_valid():
@@ -159,13 +133,13 @@ def update_lead(request, pk):
                 messages.success(request, 'Lead information has been successfully updated.')
 
                 # Redirect to the lead details page
-                return redirect('lead', pk=lead.pk)
+                return redirect('lead', pk=found_leads.pk)
 
             # If the form is not valid, render the page with errors
             messages.error(request, 'Form is not valid. Please correct the errors.')
 
         # Render the update_lead page with the form
-        return render(request, 'update_lead.html', {'form': form, 'lead': lead})
+        return render(request, 'update_lead.html', {'form': form, 'lead': found_leads})
     else:
         messages.success(request, "You must be logged in to perform this action.")
         return redirect('home')
@@ -179,13 +153,13 @@ def delete_lead(request, pk):
 
         try:
             # Attempt to find the lead based on provided ID and associated agent
-            lead = Lead.objects.get(id=pk, agent=agent)
+            searched_lead = Lead.objects.get(id=pk, agent=agent)
         except Lead.DoesNotExist:
             messages.error(request, 'Lead not found')
             return redirect('leads')
 
         # Delete the lead if found
-        lead.delete()
+        searched_lead.delete()
 
         # Inform the user about succesful deletion
         messages.success(request, 'Lead has been successfully deleted.')
@@ -199,7 +173,7 @@ def delete_lead(request, pk):
 
 def get_current_agent(request):
     if request.user.is_authenticated:
-        # If user is logged in, retrieve agent object associated with logged in user
+        # If user is logged in, retrieve agent object associated with logged-in user
         agent = Agent.objects.get(user=request.user)
         return agent
 
@@ -212,9 +186,17 @@ def get_users_lead(request, id):
 
     try:
         # Try retrieving lead based on given ID and user associated agent object
-        lead = Lead.objects.get(id=id, agent=agent)
+        searched_lead = Lead.objects.get(id=id, agent=agent)
 
         # Return found lead
-        return lead
+        return searched_lead
     except Lead.DoesNotExist:
         raise
+
+
+# Statistics
+def stats(request):
+    if request.user.is_authenticated:
+        return render(request, 'stats.html', {})
+    else:
+        return redirect('login')
