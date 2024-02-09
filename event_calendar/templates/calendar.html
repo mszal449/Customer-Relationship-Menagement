@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="col-md-8 offset-md-2">
+    <h1>Calendar</h1>
+    <h2> {{ year }} {{ month }} {{ month_number }}</h2>
+
+    <center>
+        {{ cal|safe }}
+    </center>
+    </div>
+{% endblock %}
