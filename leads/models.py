@@ -12,5 +12,3 @@ class Lead(models.Model):
 
     def __str__(self):
         return f'{self.name} {self.surname} {self.email}'
-
-
