@@ -1,9 +1,13 @@
 import calendar
+
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from .models import *
 from datetime import datetime, date, timedelta
 from .utils import Calendar
 from django.utils.safestring import mark_safe
+from .forms import EventForm
 
 
 # Override generic list view to display calendar
@@ -36,6 +40,32 @@ class CalendarView(generic.ListView):
 
 
         return context
+
+
+# Event view
+def event(request, id=None):
+    instance = Event()
+    if id:
+        instance = get_object_or_404(Event, pk=id)
+    else:
+        instance = Event()
+
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('calendar'))
+    else:
+        form = EventForm(instance=instance)
+
+    return render(request, 'event_form.html', {'form': form, 'id': id})
+
+
+def event_delete(request, id):
+    event = get_object_or_404(Event, pk=id)
+    if event:
+        event.delete()
+    return HttpResponseRedirect(reverse('calendar'))
 
 
 # Retrieve a date from a string or return today's date

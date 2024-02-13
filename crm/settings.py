@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'crm',
     'phonenumber_field',
     'leads',
-    'event_calendar'
+    'event_calendar',
 ]
 
 

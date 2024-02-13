@@ -4,6 +4,16 @@ from django.contrib import messages
 from .forms import SignUpForm
 from .models import Agent
 
+def default(request):
+    # Check if the user is authenticated
+    if request.user.is_authenticated:
+        # If the user is authenticated, render home page
+        return render(request, 'home.html', {})
+    else:
+        # If not, redirect to login page
+        return redirect('login')
+
+
 
 # Home page
 def home(request):

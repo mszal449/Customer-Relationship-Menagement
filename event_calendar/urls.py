@@ -5,5 +5,8 @@ from django.conf import settings
 
 
 urlpatterns = [
-   path(r'calendar', views.CalendarView.as_view(), name='calendar')
-] + static(settings.STATIC_URL, document_root=settings.STATIC_URL)
+   path('calendar', views.CalendarView.as_view(), name='calendar'),
+   path('event/new', views.event, name='event_new'),
+   path('event/edit/<int:id>', views.event, name='event_edit'),
+   path('event/delete/<int:id>', views.event_delete, name='event_delete')
+]

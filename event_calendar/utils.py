@@ -1,5 +1,4 @@
 from calendar import HTMLCalendar
-from datetime import datetime, timedelta
 from event_calendar.models import Event
 
 
@@ -12,17 +11,17 @@ class Calendar(HTMLCalendar):
 
     # Format a day as a td and filters events by day
     def formatday(self, day, events):
-        # Filter data by given name
+        # Filter data by given day
         events_for_day = events.filter(start_time__day=day)
 
-        # Create a list of events
+        # Create a html list of events
         data = ''
         for event in events_for_day:
-            data += f'<li> {event.title} </li>'
+            data += f'<li class="event-list-item"> {event.get_html_url} </li>'
 
-        # todo
+
         if day != 0:
-            return f"<td><span class='date'>{day}</span><ul> {data} </ul>"
+            return f"<td><span class='date'>{day}</span><ul class='event-list'> {data} </ul>"
         return '<td></td>'
 
     # Formats week as a table tr
@@ -32,7 +31,7 @@ class Calendar(HTMLCalendar):
             week += self.formatday(d, events)
         return f'<tr> {week} </tr>'
 
-    # Formats month as a table
+    # Formats month as a td
     def formatmonth(self, withyear=True):
         events = Event.objects.filter(start_time__year=self.year, start_time__month=self.month)
 

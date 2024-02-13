@@ -1,10 +1,12 @@
 {% extends 'cal_base.html' %}
 
 {% block content %}
-    <h1>Calendar</h1>
-    <div class="clearfix">
-        <a class='btn btn-info left' href="{% url 'calendar' %}?{{ prev_month }}">Previous Month</a>
-        <a class='btn btn-info right' href="{% url 'calendar' %}?{{ next_month }}">next Month</a>
+    <div class="calendar-container pb-20" style="width:100%">
+        {{ calendar }}
     </div>
-    {{ calendar }}
+    <div class="buttons d-flex justify-content-right" style="width:100%">
+        <a class='btn btn-info left me-auto' href="{% url 'calendar' %}?{{ prev_month }}">Previous Month</a>
+        <a class='btn btn-info new me-2' href="{% url 'event_new' %}">New Event</a>
+        <a class='btn btn-info right' href="{% url 'calendar' %}?{{ next_month }}">Next Month</a>
+    </div>
 {% endblock %}

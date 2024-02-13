@@ -6,6 +6,11 @@ from crm.models import Agent
 
 
 class AddLeadForm(forms.ModelForm):
+    class Meta:
+        model = Lead
+        fields = ['name', 'surname', 'email', 'phone_number', 'agent']
+
+
     name = forms.CharField(
         max_length=100,
         label='Name',
@@ -35,12 +40,13 @@ class AddLeadForm(forms.ModelForm):
     )
 
 
+
+class FilterLeadsForm(forms.ModelForm):
     class Meta:
         model = Lead
         fields = ['name', 'surname', 'email', 'phone_number', 'agent']
 
 
-class FilterLeadsForm(forms.ModelForm):
     name = forms.CharField(
         max_length=100,
         label='Name',
@@ -86,8 +92,5 @@ class FilterLeadsForm(forms.ModelForm):
                 self.fields['agent'].initial = agent
                 print(self.fields['agent'].initial)
 
-    class Meta:
-        model = Lead
-        fields = ['name', 'surname', 'email', 'phone_number', 'agent']
 
 
